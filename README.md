@@ -1,84 +1,172 @@
-# Chamada de grupos interdisciplinares
+# Sistema de Registro de Atendimentos em Grupo
 
-Projeto didático em Python e Django para registrar atendimentos em grupos de até 10 usuários. A chamada diária alimenta uma folha mensal horizontal, que pode ser vista no navegador e baixada em Excel.
+Aplicação web para organizar grupos interdisciplinares, registrar atendimentos diários e gerar folhas mensais de frequência.
 
-## O que já funciona
+O projeto foi desenvolvido em Python e Django para uso local. Os dados são armazenados em SQLite e a folha mensal pode ser consultada no navegador, exportada para Excel e enviada por e-mail.
 
-- Login; cadastro de profissionais, usuários, grupos e participantes no painel administrativo.
-- Agenda do dia por horário e dupla de profissionais.
-- Registro de Presença (P), Falta (F), Falta justificada (FJ), Atendimento Familiar (AF) e Atendimento Extra (AE).
-- Folha mensal gerada automaticamente a partir dos lançamentos. Alterações no lançamento aparecem imediatamente na folha.
-- Envio da folha mensal por e-mail após salvar a chamada, quando SMTP e e-mail de destino estiverem configurados; envio manual também disponível na folha.
+## Situação do projeto
 
-## 1. Instalação local no Windows
+Primeira versão funcional, destinada a testes com dados fictícios.
 
-Instale Python 3.14 e Git. Abra o PowerShell na pasta deste projeto e execute:
+Funcionalidades disponíveis:
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe manage.py migrate
-.\.venv\Scripts\python.exe manage.py createsuperuser
-.\.venv\Scripts\python.exe manage.py runserver
+- autenticação de acesso;
+- cadastro de profissionais e usuários;
+- criação de grupos por dia da semana e horário;
+- definição da dupla responsável por cada grupo;
+- inclusão de até 10 usuários ativos por grupo;
+- exibição dos atendimentos previstos para a data selecionada;
+- registro de presença, falta e modalidades de atendimento;
+- geração automática da folha mensal;
+- exportação da folha em formato Excel;
+- envio da planilha por e-mail via SMTP;
+- manutenção dos cadastros pelo painel administrativo do Django.
+
+## Registros de atendimento
+
+| Código | Descrição |
+|---|---|
+| `P` | Presença |
+| `F` | Falta |
+| `FJ` | Falta justificada |
+| `AF` | Atendimento familiar |
+| `AE` | Atendimento extra |
+
+Cada combinação de data, grupo e usuário possui um registro. Se outro registro for feito para a mesma combinação, o valor anterior será atualizado.
+
+## Regras de negócio
+
+- Cada grupo possui um dia da semana, horário e dois profissionais responsáveis.
+- Os dois profissionais de um grupo devem ser diferentes.
+- Cada grupo aceita no máximo 10 participantes ativos.
+- A página inicial apresenta somente os grupos programados para a data selecionada.
+- A folha mensal é calculada a partir dos registros diários.
+- Usuários e participações encerrados devem ser desativados para preservar o histórico.
+- Atendimento familiar e atendimento extra podem ser registrados em uma tela própria.
+
+## Tecnologias
+
+- Python 3.14
+- Django 6.1
+- SQLite
+- openpyxl
+- HTML e CSS
+- Git e GitHub
+
+## Estrutura principal
+
+```text
+chamada_grupos/
+├── atendimentos/          # Regras, telas, modelos e testes
+│   ├── migrations/        # Histórico da estrutura do banco
+│   ├── templates/         # Páginas HTML
+│   ├── admin.py           # Painel administrativo
+│   ├── models.py          # Estrutura dos dados
+│   ├── tests.py           # Testes automatizados
+│   ├── urls.py            # Rotas do módulo
+│   └── views.py           # Fluxos e geração do Excel
+├── config/                # Configuração geral do Django
+├── manage.py              # Comandos administrativos
+└── requirements.txt       # Dependências
 ```
 
-Abra `http://127.0.0.1:8000/`. Entre com a conta criada. O painel de cadastro fica em `http://127.0.0.1:8000/admin/`.
+## Instalação no Windows com PyCharm
 
-### Usando o PyCharm
+### 1. Abrir o projeto
 
-1. No PyCharm, escolha **Open** e selecione a pasta `chamada_grupos` (a pasta que contém `manage.py`).
-2. Em **Settings > Project > Python Interpreter**, escolha **Add Interpreter > Add Local Interpreter > Virtualenv** e crie o ambiente `.venv` dentro da pasta do projeto. Se o PyCharm já criar um ambiente automaticamente, use esse mesmo.
-3. Abra a aba **Terminal** do PyCharm. Confirme que o terminal está na pasta onde está `manage.py` e que `python --version` mostra o Python do ambiente virtual. Se o terminal não ativar o ambiente automaticamente, use `\.venv\Scripts\python.exe` nos comandos abaixo.
-4. Execute, em ordem:
+No PyCharm, selecione **File > Open** e abra a pasta que contém o arquivo `manage.py`.
+
+### 2. Configurar o interpretador
+
+Abra **Settings > Project > Python Interpreter**. Adicione um interpretador local do tipo **Virtualenv** e use um ambiente chamado `.venv`.
+
+### 3. Instalar e preparar a aplicação
+
+No terminal do PyCharm, execute:
 
 ```powershell
 python -m pip install -r requirements.txt
 python manage.py migrate
 python manage.py createsuperuser
+```
+
+Se `python` não usar o ambiente configurado, substitua-o pelo caminho do interpretador selecionado no PyCharm.
+
+### 4. Iniciar o servidor
+
+```powershell
 python manage.py runserver
 ```
 
-5. Abra `http://127.0.0.1:8000/` no navegador. Para parar o servidor, pressione **Ctrl+C** no terminal.
+A aplicação ficará disponível em:
 
-Se `python` no terminal apontar para outro interpretador, execute os mesmos comandos com `.\.venv\Scripts\python.exe` no lugar de `python`.
+- sistema: <http://127.0.0.1:8000/>
+- painel administrativo: <http://127.0.0.1:8000/admin/>
 
-## 2. Primeiro cadastro
+Use `Ctrl+C` no terminal para encerrar o servidor.
 
-No painel administrativo, cadastre **dois profissionais**, depois os **usuários**. Cadastre um **grupo** com dia da semana, horário, dupla e participantes. O sistema limita cada grupo a 10 participantes ativos. Para guardar histórico, desative um usuário ou participação ao encerrar o atendimento, em vez de apagar registros antigos. Em **Configurações**, cadastre o e-mail destinatário.
+## Configuração inicial
 
-## 3. Uso diário
+No painel administrativo, faça os cadastros nesta ordem:
 
-Abra a página inicial. Os grupos previstos aparecem por horário. Marque cada usuário e clique em **Salvar chamada**. A folha mensal já estará atualizada; use **Folha mensal** para conferir ou baixar Excel. A tela **Atendimento extra/familiar** permite registrar essas modalidades fora da chamada regular. Nesta primeira versão, há um registro por usuário, grupo e data: um novo lançamento na mesma combinação substitui o anterior.
+1. profissionais;
+2. usuários;
+3. grupos, horários e participantes;
+4. e-mail destinatário em **Configurações**.
 
-## 4. E-mail
+Depois, abra a página inicial e selecione uma data que corresponda ao dia da semana do grupo cadastrado.
 
-Configure as variáveis de ambiente `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` e `SMTP_FROM` no PowerShell antes de iniciar o servidor. Exemplo:
+## Envio por Gmail
+
+O envio usa o servidor SMTP do Gmail com uma senha de app. Configure as variáveis no terminal antes de iniciar o servidor:
 
 ```powershell
-$env:SMTP_HOST = 'smtp.seu-provedor.com'
+$env:SMTP_HOST = 'smtp.gmail.com'
 $env:SMTP_PORT = '587'
-$env:SMTP_USER = 'conta@exemplo.com'
-$env:SMTP_PASSWORD = 'token-do-provedor'
-$env:SMTP_FROM = 'conta@exemplo.com'
+$env:SMTP_USER = 'conta@gmail.com'
+$env:SMTP_FROM = 'conta@gmail.com'
+$senha = Read-Host 'Senha de app' -AsSecureString
+$env:SMTP_PASSWORD = [System.Net.NetworkCredential]::new('', $senha).Password.Replace(' ', '')
+python manage.py runserver
 ```
 
-O serviço SMTP precisa aceitar STARTTLS na porta informada. Não coloque senhas no código ou no GitHub. Sem essas variáveis, a chamada e a planilha continuam funcionando, mas o envio automático fica desativado.
+A senha de app deve ser criada na Conta Google usada em `SMTP_USER`. As variáveis permanecem somente durante a sessão atual do terminal.
 
-## 5. Testes e controle de versão
+Credenciais não devem ser registradas em arquivos versionados. O arquivo `.env.example` contém somente os nomes das configurações esperadas.
+
+## Testes
 
 ```powershell
-.\.venv\Scripts\python.exe manage.py test
-git init
-git add .
-git commit -m "Primeira versão da chamada de grupos"
+python manage.py test
+python manage.py check
 ```
 
-Para publicar, crie um **repositório privado** no GitHub e siga os comandos de conexão com um repositório existente que o GitHub mostrar. Confira antes que `db.sqlite3`, `.env` e `.venv` não apareçam em `git status`. O banco local contém dados pessoais e nunca deve ser enviado ao repositório.
+Os testes atuais verificam o lançamento da chamada, a atualização da planilha mensal e a restrição do grupo ao dia programado.
 
-## Próximas etapas sugeridas
+## Controle de versão
 
-1. Testar o fluxo com dados fictícios e ajustar o formato da folha à folha usada na instituição.
-2. Definir se Atendimento Familiar e Extra podem coexistir com Presença no mesmo dia; isso exige múltiplos eventos por usuário/data.
-3. Criar permissões separadas para administradores e profissionais, rotinas de backup e, antes de hospedar, configurar HTTPS, chave secreta própria, `DJANGO_DEBUG=0` e banco PostgreSQL.
+Fluxo básico para registrar uma alteração:
 
-Este projeto é uma base de aprendizagem e deve ser validado com a instituição antes de registrar dados reais.
+```powershell
+git status
+git add .
+git commit -m "Descreve a alteração realizada"
+git push
+```
+
+O arquivo `db.sqlite3`, o ambiente `.venv` e arquivos de credenciais estão ignorados pelo Git. O GitHub armazena o código e a documentação; os cadastros e registros permanecem no banco local.
+
+## Segurança e dados pessoais
+
+Esta versão deve ser avaliada com dados fictícios antes do uso institucional. Para utilizar dados reais, é necessário definir controle de acesso, cópias de segurança, prazo de retenção, responsabilidade pelo tratamento dos dados e endereço autorizado para receber as planilhas.
+
+O banco `db.sqlite3` pode conter nomes, datas de nascimento e registros de atendimento. Ele não deve ser publicado no GitHub ou enviado sem autorização.
+
+## Próximos marcos
+
+- criar uma rotina de backup e restauração do banco;
+- separar permissões de administradores e profissionais;
+- adequar a folha mensal ao modelo oficial da instituição;
+- registrar histórico dos envios de e-mail;
+- avaliar múltiplos atendimentos para o mesmo usuário no mesmo dia;
+- preparar PostgreSQL, HTTPS e configurações de produção antes da hospedagem.
