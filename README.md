@@ -24,6 +24,24 @@ python -m venv .venv
 
 Abra `http://127.0.0.1:8000/`. Entre com a conta criada. O painel de cadastro fica em `http://127.0.0.1:8000/admin/`.
 
+### Usando o PyCharm
+
+1. No PyCharm, escolha **Open** e selecione a pasta `chamada_grupos` (a pasta que contém `manage.py`).
+2. Em **Settings > Project > Python Interpreter**, escolha **Add Interpreter > Add Local Interpreter > Virtualenv** e crie o ambiente `.venv` dentro da pasta do projeto. Se o PyCharm já criar um ambiente automaticamente, use esse mesmo.
+3. Abra a aba **Terminal** do PyCharm. Confirme que o terminal está na pasta onde está `manage.py` e que `python --version` mostra o Python do ambiente virtual. Se o terminal não ativar o ambiente automaticamente, use `\.venv\Scripts\python.exe` nos comandos abaixo.
+4. Execute, em ordem:
+
+```powershell
+python -m pip install -r requirements.txt
+python manage.py migrate
+python manage.py createsuperuser
+python manage.py runserver
+```
+
+5. Abra `http://127.0.0.1:8000/` no navegador. Para parar o servidor, pressione **Ctrl+C** no terminal.
+
+Se `python` no terminal apontar para outro interpretador, execute os mesmos comandos com `.\.venv\Scripts\python.exe` no lugar de `python`.
+
 ## 2. Primeiro cadastro
 
 No painel administrativo, cadastre **dois profissionais**, depois os **usuários**. Cadastre um **grupo** com dia da semana, horário, dupla e participantes. O sistema limita cada grupo a 10 participantes ativos. Para guardar histórico, desative um usuário ou participação ao encerrar o atendimento, em vez de apagar registros antigos. Em **Configurações**, cadastre o e-mail destinatário.
